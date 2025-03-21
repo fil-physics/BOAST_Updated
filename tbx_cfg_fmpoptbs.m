@@ -262,7 +262,7 @@ opt.results = epi_opt_param_TB(job.inputfiles.fieldmaps, job.inputfiles.rois, ..
 % opt.fmfiles = job.inputfiles.fieldmaps;
 
 % =========================================================================
-function dep = vout_fmpoptbs_apply(job)
+function dep = vout_fmpoptbs_apply(~)
 % do something
 dep = cfg_dep;
 
