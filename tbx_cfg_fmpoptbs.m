@@ -16,7 +16,7 @@ function fmpoptbs = tbx_cfg_fmpoptbs
 
 % Adding the toolbox folder
 if ~isdeployed
-    addpath(fullfile(spm('Dir'),'toolbox','BOAST_Updated')); 
+    addpath(fullfile(spm('Dir'),'toolbox','FmpOptBS')); 
 end
 
 %==========================================================================
@@ -32,7 +32,9 @@ fieldmaps.name    = 'Input fieldmaps';
 % fieldmaps.val{1}  = {'files/mean_wr_calcDX.nii' 'files/mean_wr_calcDY.nii' 'files/mean_wr_calcDZ.nii'};
 %fieldmaps.val{1}  = {'files/mean_wr_fmp.nii'};
 fieldmaps.help    = {['One fieldmap or 3 fieldmap gradient (dX dY dZ) files ' ...
-                      'for optimizing BOLD sensitivity.']};
+                      'for optimizing BOLD sensitivity. Note that field ' ...
+                      'derivatives must have units in T/m and the orientations' ...
+                      'should be along (read, phase, slice) direction']};
 %fieldmaps.filter  = 'fmp';
 fieldmaps.ufilter = '.*';
 fieldmaps.num     = [1 Inf];
@@ -81,26 +83,26 @@ fov         = cfg_entry;
 fov.tag     = 'fov';
 fov.name    = 'Field of view';
 fov.val     = {192};
-fov.help    = {'Field Of View in mm'};
+fov.help    = {'Field Of View in Phase Encoding Direction in mm'};
 fov.strtype = 'r';
 fov.num     = [1 1];
 % -------------------------------------------------------------------------
-% Base Resolution
+% Phase Resolution
 % -------------------------------------------------------------------------
-base_res         = cfg_entry;
-base_res.tag     = 'base_res';
-base_res.name    = 'Base resolution';
-base_res.val     = {64};
-base_res.help    = {'Base Resolution in #px'};
-base_res.strtype = 'r';
-base_res.num     = [1 1];
+ph_res         = cfg_entry;
+ph_res.tag     = 'ph_res';
+ph_res.name    = 'Phase resolution';
+ph_res.val     = {64};
+ph_res.help    = {'Phase Resolution in #px'};
+ph_res.strtype = 'r';
+ph_res.num     = [1 1];
 % -------------------------------------------------------------------------
 % Phase Encoding Oversampling
 % -------------------------------------------------------------------------
 pe_ov         = cfg_entry;
 pe_ov.tag     = 'pe_ov';
 pe_ov.name    = 'Phase oversampling';
-pe_ov.val     = {13};
+pe_ov.val     = {12};
 pe_ov.help    = {'Oversampling Ratio in Phase Encoding Direction in %'};
 pe_ov.strtype = 'r';
 pe_ov.num     = [1 1];
@@ -171,7 +173,7 @@ PF.num     = [1 1];
 fixedparameters         = cfg_branch;
 fixedparameters.tag     = 'fixedparameters';
 fixedparameters.name    = 'Fixed Protocol Parameters';
-fixedparameters.val     = {main_orientation fov base_res pe_ov slicethickness echospacing echotime vox AccF PF};
+fixedparameters.val     = {main_orientation fov ph_res pe_ov slicethickness echospacing echotime vox AccF PF};
 fixedparameters.help    = {'Fixed Protocol Parameters'};
 
 % =========================================================================
@@ -185,7 +187,7 @@ shimz         = cfg_entry;
 shimz.tag     = 'shimz';
 shimz.name    = 'shimz';
 shimz.val     = {[-5 0 5 0.5]};
-shimz.help    = {'Shim Gradient in z-direction [min ref max step-size]'};
+shimz.help    = {'Shim Gradient moment in z-direction in mT/m*ms [min ref max step-size]'};
 shimz.strtype = 'r';
 shimz.num     = [1 4];
 % -------------------------------------------------------------------------
@@ -226,21 +228,49 @@ rfs.num     = [1 1];
 % -------------------------------------------------------------------------
 % R2star Designation
 % -------------------------------------------------------------------------
-R2s         = cfg_entry;
-R2s.tag     = 'R2s';
-R2s.name    = 'R2star Value/Map';
-R2s.val     = {1};
-R2s.help    = {['1 = Global Value in 3T (45 ms), 2 = Global value in 7T (30 ms),' ...
+R2sOpt         = cfg_choice;
+R2sOpt.tag     = 'R2sOpt';
+R2sOpt.name    = 'R2star Option';
+R2sOpt.val     = {1};
+R2sOpt.help    = {['1 = Global Value in 3T (1/45 ms), 2 = Global value in 7T (1/30 ms),' ...
                 '3 = Voxel-wise Map, 4 = ROI-specific Aveaged Value']};
-R2s.strtype = 'r';
-R2s.num     = [1 1];
+R2sOpt.strtype = 'r';
+R2sOpt.num     = [1 1];
+% -------------------------------------------------------------------------
+% Additional Input (Only if R2sOpt is 3 or 4)
+% -------------------------------------------------------------------------
+additionalInput         = cfg_entry;
+additionalInput.tag     = 'additionalInput';
+additionalInput.name    = 'Additional Parameter';
+additionalInput.val     = {};                              % Default value
+additionalInput.help    = {'Provide An R2s Map'};
+additionalInput.num     = [1 Inf];
+% -------------------------------------------------------------------------
+% Conditional Display Logic
+% -------------------------------------------------------------------------
+R2sOptChoice         = cfg_choice;
+R2sOptChoice.tag     = 'R2sOptChoice';
+R2sOptChoice.name    = 'R2star Selection';
+R2sOptChoice.values  = {R2sOpt, additionalInput};
+R2sOptChoice.val     = {R2sOpt};          % By default, only R2sOpt appears
+% -------------------------------------------------------------------------
+% Default Scanner Coordinate
+% -------------------------------------------------------------------------
+Coord         = cfg_entry;
+Coord.tag     = 'Coord';
+Coord.name    = 'R2star Value/Map';
+Coord.val     = {1};
+Coord.help    = {['1 = Global Value in 3T (1/45 ms), 2 = Global value in 7T (1/30 ms),' ...
+                '3 = Voxel-wise Map, 4 = ROI-specific Aveaged Value']};
+Coord.strtype = 'r';
+Coord.num     = [1 1];
 % -------------------------------------------------------------------------
 % Other Settings
 % -------------------------------------------------------------------------
 other         = cfg_branch;
 other.tag     = 'other';
 other.name    = 'Other Settings';
-other.val     = {rfs R2s};
+other.val     = {rfs R2sOptChoice};
 other.help    = {'Other Settings Used for Optimization'};
 
 % =========================================================================
@@ -257,17 +287,18 @@ fmpoptbs.vout = @vout_fmpoptbs_apply;
 function opt = fmpoptbs_apply(job)
 
 opt.results = epi_opt_param_TB(job.inputfiles.fieldmaps, job.inputfiles.rois, ...
+                               job.inputfiles.template, ...
                                job.fixedparameters.main_orientation, ...
-                               job.fixedparameters.fov*10^-3, ...
+                               job.fixedparameters.fov, ...
                                job.fixedparameters.base_res, ...
                                job.fixedparameters.pe_ov, ...
-                               job.fixedparameters.slicethickness*10^-3, ...
-                               job.fixedparameters.echospacing*10^-3, ...
-                               job.fixedparameters.echotime*10^-3, ...
-                               job.fixedparameters.vox*10^-3, ...
+                               job.fixedparameters.slicethickness, ...
+                               job.fixedparameters.echospacing, ...
+                               job.fixedparameters.echotime, ...
+                               job.fixedparameters.vox, ...
                                job.fixedparameters.AccF, job.fixedparameters.PF, ...
                                job.simu.tilt, job.simu.shimz, ...
-                               job.other.rfs, job.other.R2s, 'Opt_');
+                               job.other.rfs, job.other.R2sOpt, 'Opt_');
 
 % Not sure if this is necessary!
 % opt.fmfiles = job.inputfiles.fieldmaps;

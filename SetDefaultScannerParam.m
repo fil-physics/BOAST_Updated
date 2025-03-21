@@ -6,7 +6,7 @@ function scanner_param = SetDefaultScannerParam
 % =========================================================================
 % name                            : Scanner name
 % B0                              : Field strength
-% T2s                             : T2* value (in s) - An averaged value over 
+% T2s                             : T2* value (in ms) - An averaged value over 
 %                                   the entire brain or a voxel-wise map.
 %                                   Although not directly a scanner parameter, 
 %                                   it depends on the field strength!
@@ -21,7 +21,7 @@ scanner_param.B0 = 3;
 
 % well this is not directly a scanner parameter, however it depends on the
 % field strength and therefore scanner
-scanner_param.T2s = 45*10^-3; 	    % T2* at 3 T (Wansapura et al., JMRI 1999)
+scanner_param.T2s = 45; 	    % T2* at 3 T (Wansapura et al., JMRI 1999)
 
 
 end

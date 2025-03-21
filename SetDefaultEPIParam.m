@@ -20,7 +20,7 @@ function epi_param = SetDefaultEPIParam
 % echo_spacing                    : Echo spacing (in ms)
 % echotime                        : Effective (central) echo time (in ms)
 % vox                             : Voxel size (in mm) 
-%                                   (1x3) array (x y z direction)
+%                                   (1x3) array (read, phase, slice) direction
 % =========================================================================
 
 % Updated 23/09/2024
