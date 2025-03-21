@@ -142,7 +142,7 @@ vox         = cfg_entry;
 vox.tag     = 'vox';
 vox.name    = 'Voxel size';
 vox.val     = {[3 3 3]};
-vox.help    = {'Voxel Size [phase, read, slice] in mm'}; % Note the order of input!
+vox.help    = {'Voxel Size [read, phase, slice] in mm'}; % Note the order of input!
 vox.strtype = 'r';
 vox.num     = [1 3];
 % -------------------------------------------------------------------------
@@ -224,12 +224,23 @@ rfs.help    = {'0 = no (original size), 1 = yes (1/3)'};
 rfs.strtype = 'r';
 rfs.num     = [1 1];
 % -------------------------------------------------------------------------
+% R2star Designation
+% -------------------------------------------------------------------------
+R2s         = cfg_entry;
+R2s.tag     = 'R2s';
+R2s.name    = 'R2star Value/Map';
+R2s.val     = {1};
+R2s.help    = {['1 = Global Value in 3T (45 ms), 2 = Global value in 7T (30 ms),' ...
+                '3 = Voxel-wise Map, 4 = ROI-specific Aveaged Value']};
+R2s.strtype = 'r';
+R2s.num     = [1 1];
+% -------------------------------------------------------------------------
 % Other Settings
 % -------------------------------------------------------------------------
 other         = cfg_branch;
 other.tag     = 'other';
 other.name    = 'Other Settings';
-other.val     = {rfs};
+other.val     = {rfs R2s};
 other.help    = {'Other Settings Used for Optimization'};
 
 % =========================================================================
@@ -256,7 +267,7 @@ opt.results = epi_opt_param_TB(job.inputfiles.fieldmaps, job.inputfiles.rois, ..
                                job.fixedparameters.vox*10^-3, ...
                                job.fixedparameters.AccF, job.fixedparameters.PF, ...
                                job.simu.tilt, job.simu.shimz, ...
-                               job.other.rfs, 'Opt_');
+                               job.other.rfs, job.other.R2s, 'Opt_');
 
 % Not sure if this is necessary!
 % opt.fmfiles = job.inputfiles.fieldmaps;

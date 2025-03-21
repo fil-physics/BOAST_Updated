@@ -1,20 +1,43 @@
 function epi_param = SetDefaultEPIParam
 
-our_epi.main_orientation = 'TRA';
-our_epi.fov = 0.192; % field of view in EPI 192 mm
-our_epi.base_res = 64;
-% slice thickness
-our_epi.d=2*10^-3; %Siemens pulse approximates Gaussian with 2 mm FWHM
-%our_epi.echo_spacing = 0.330; % for allegra
-our_epi.echo_spacing = 0.500; % echo spacing in ms
-our_epi.TC= 30; % ms
-our_epi.vx_epi=[3 3 3];
+% =========================================================================
+% This function sets the fixed parameters for the EPI protocol. 
+% These values can be modified as needed to suit specific requirements 
+% or preferences.
+% =========================================================================
+% main_orientation                : Slice oriantation
+%                                   'TRA' : transverse 
+%                                   'CRO' : coronal
+%                                   'SAG' : sagittal
+% fov                             : Field of view (in mm)
+% base_res                        : Basic resolution (Matrix size)
+% pe_ov                           : Oversampling Ratio in Phase Encoding 
+%                                   Direction in %
+% PF                              : Partial Fourier Coefficient
+% AF                              : In-plane Acceleration Factor
+% slicethickness                  : Full width at half-maximum (FWHM) 
+%                                   of the slice profile (in mm)
+% echo_spacing                    : Echo spacing (in ms)
+% echotime                        : Effective (central) echo time (in ms)
+% vox                             : Voxel size (in mm) 
+%                                   (1x3) array (x y z direction)
+% =========================================================================
 
-our_epi.vx_epi = our_epi.vx_epi*10^-3;
-our_epi.echo_spacing = our_epi.echo_spacing*10^-3;
-our_epi.TC = our_epi.TC*10^-3;
-our_epi.TA = our_epi.echo_spacing*our_epi.base_res;
+% Updated 23/09/2024
+% by Shokoufeh Golshani
 
-epi_param = our_epi;
+epi_param.main_orientation = 'TRA';
+epi_param.fov              = 192;
+epi_param.base_res         = 64;
+epi_param.pe_ov            = 13;
+epi_param.PF               = 1;
+epi_param.AF               = 1;
+% Note here 2 mm is used as the FWHM
+epi_param.slicethickness   = 2; % Siemens pulse approximates Gaussian with 2 mm FWHM
+epi_param.echo_spacing     = 0.5; 
+epi_param.echotime= 30; 
+epi_param.vx               = [3 3 3];
+
+
 
 end
