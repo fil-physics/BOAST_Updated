@@ -226,33 +226,54 @@ rfs.help    = {'0 = no (original size), 1 = yes (1/3)'};
 rfs.strtype = 'r';
 rfs.num     = [1 1];
 % -------------------------------------------------------------------------
+% Additional Inputs for R2s Option
+% -------------------------------------------------------------------------
+Global_3T         = cfg_entry;
+Global_3T.tag     = 'Global_3T';
+Global_3T.name    = '3T Global R2*';
+Global_3T.val     = {1/45};                              
+Global_3T.help    = {'Global R2* Value in 3T in ms^-1'};
+Global_3T.num     = [1 1];
+% -------------------------------------------------------------------------
+% Additional Inputs for R2s Option
+% -------------------------------------------------------------------------
+Global_7T         = cfg_entry;
+Global_7T.tag     = 'global7T';
+Global_7T.name    = '7T Global R2*';
+Global_7T.val     = {1/30};                              
+Global_7T.help    = {'Global R2* Value in 7T in ms^-1'};
+Global_7T.num     = [1 1];
+% -------------------------------------------------------------------------
+% Additional Inputs for R2s Option
+% -------------------------------------------------------------------------
+Voxel_wise         = cfg_files;
+Voxel_wise.tag     = 'Voxel_wise';
+Voxel_wise.name    = 'Voxel_wise R2* map';                             
+Voxel_wise.help    = {'Input an R2* map in ms^-1'};
+Voxel_wise.num     = [1 Inf];
+% -------------------------------------------------------------------------
+% Additional Inputs for R2s Option
+% -------------------------------------------------------------------------
+ROI_Averaged         = cfg_files;
+ROI_Averaged.tag     = 'Voxel_wise';
+ROI_Averaged.name    = 'Voxel_wise R2* for ROI-specific value';                            
+ROI_Averaged.help    = {['Input an R2* map in ms^-1, an averaged value within' ...
+                         'each ROI will be used for optimization']};
+ROI_Averaged.num     = [1 1];
+% -------------------------------------------------------------------------
 % R2star Designation
 % -------------------------------------------------------------------------
 R2sOpt         = cfg_choice;
 R2sOpt.tag     = 'R2sOpt';
 R2sOpt.name    = 'R2star Option';
-R2sOpt.val     = {1};
-R2sOpt.help    = {['1 = Global Value in 3T (1/45 ms), 2 = Global value in 7T (1/30 ms),' ...
-                '3 = Voxel-wise Map, 4 = ROI-specific Aveaged Value']};
-R2sOpt.strtype = 'r';
-R2sOpt.num     = [1 1];
-% -------------------------------------------------------------------------
-% Additional Input (Only if R2sOpt is 3 or 4)
-% -------------------------------------------------------------------------
-additionalInput         = cfg_entry;
-additionalInput.tag     = 'additionalInput';
-additionalInput.name    = 'Additional Parameter';
-additionalInput.val     = {};                              % Default value
-additionalInput.help    = {'Provide An R2s Map'};
-additionalInput.num     = [1 Inf];
-% -------------------------------------------------------------------------
-% Conditional Display Logic
-% -------------------------------------------------------------------------
-R2sOptChoice         = cfg_choice;
-R2sOptChoice.tag     = 'R2sOptChoice';
-R2sOptChoice.name    = 'R2star Selection';
-R2sOptChoice.values  = {R2sOpt, additionalInput};
-R2sOptChoice.val     = {R2sOpt};          % By default, only R2sOpt appears
+R2sOpt.values  = {Global_3T Global_7T Voxel_wise ROI_Averaged};
+R2sOpt.val     = {Global_3T};
+R2sOpt.help    = {'How to inoporate R2* in the optimization; The options are:' ...
+                  '1. Global Value in 3T (1/45e-3 s^-1)' ...
+                  '2. Global value in 7T (1/30e-3 s^-1)' ...
+                  '3. Voxel-wise Map (s^-1)' ...
+                  '4. ROI-specific Averaged Value'
+                  };
 % -------------------------------------------------------------------------
 % Default Scanner Coordinate
 % -------------------------------------------------------------------------
@@ -270,7 +291,7 @@ Coord.num     = [1 1];
 other         = cfg_branch;
 other.tag     = 'other';
 other.name    = 'Other Settings';
-other.val     = {rfs R2sOptChoice};
+other.val     = {rfs R2sOpt};
 other.help    = {'Other Settings Used for Optimization'};
 
 % =========================================================================
