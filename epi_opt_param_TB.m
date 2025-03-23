@@ -1,4 +1,6 @@
-function result = epi_opt_param_TB(fieldmaps, rois, template, main_orientation, fov, ph_res, pe_ov, delta_z, echo_spacing, TC, vx_epi, AF, PF, tilt, shimz, rfs, R2sOpt, direction, suffix)
+function result = epi_opt_param_TB(fieldmaps, rois, template, main_orientation, ...
+                     fov, ph_res, pe_ov, delta_z, echo_spacing, TC, vx_epi, AF, ...
+                     PF, tilt, shimz, rfs, R2sOpt, direction, suffix)
 
 % =========================================================================
 % Copyright (C) 2015-2018 Steffen Volz
@@ -41,7 +43,7 @@ function result = epi_opt_param_TB(fieldmaps, rois, template, main_orientation, 
 % -------------------------------------------------------------------------
 % Define the output folder
 % -------------------------------------------------------------------------
-out_dir = fullfile(pwd, spritnf('results_BS%s', suffix));
+out_dir = fullfile(pwd, sprintf('results_BS%s', suffix));
 if ~exist(out_dir,'file')
     mkdir(out_dir);
 end
@@ -122,9 +124,9 @@ if isnumeric(R2s)
     scanner_param.R2s = R2s;
     fprintf('loading R2s value: %0.2f\n', R2s);
 else
-    vol_R2s = spm_vol(R2s);
+    vol_R2s = spm_vol(char(R2s));
     scanner_param.R2s = spm_read_vols(vol_R2s);
-    fprintf('loading R2s map: %s\n', R2s);
+    fprintf('loading R2s map: %s\n', char(R2s));
 end
 
 scanner_param.R2s = scanner_param.R2s .* 10^3;
@@ -143,10 +145,10 @@ for n = 1:length(rois)
     % ROI_averaged Susceptiblity Gradient
     GSSroi = fm_dZ(squeeze(ROI_slct(:,:,:,n))>0);
     GSSroi = mean(GSSroi);
-    GSSroi_TE = GSSroi*epi_param_fix.TC;
+    GSSroi_TE = GSSroi*epi_param_fix.TC*1e6;
 
-    sprintf(['Mean slice gradient moment in the roi: %0.2f (mT/m*ms) ... \n' ...
-             'You can adjusct shimz range accordingly'], GSSroi_TE);
+    sprintf(['Mean slice gradient moment in the roi: %0.2f (mT/m*ms). ' ...
+             'You can adjusct shimz range accordingly\n'], GSSroi_TE);
 
     % ROI_averaged R2s
     if strcmp(R2sfield, 'ROI_Averaged')
@@ -188,8 +190,8 @@ PE_range = [-1 1];
 % Setting Field derivatives
 % -------------------------------------------------------------------------
 FG.DX        = fm_dX;
-FG.DX        = fm_dX;
-FG.DX        = fm_dX;
+FG.DY        = fm_dY;
+FG.DZ        = fm_dZ;
 FG.direction = direction;
 
 % -------------------------------------------------------------------------
@@ -200,7 +202,6 @@ epi_param_opt.tilt = tilt_ref;                      % Tilt of slice (deg, T>C, S
 epi_param_opt.PE_dir = PE_range(1);                 % PE direction of EPI 
 
 BS_baseline = CalculateBS_TB(FG, epi_param_opt, epi_param_fix, scanner_param);
-
 
 % -------------------------------------------------------------------------
 % Exploring the Parameter Space
@@ -237,14 +238,14 @@ for PE_val = 1:length(PE_range)
             epi_param_opt.tilt = tilt_range(tilt_val);
             epi_param_opt.PE_dir = PE_range(PE_val);
       
-            BS = CalculateBS_ESMRMB(FG, epi_param_opt, epi_param_fix, scanner_param);
+            BS = CalculateBS_TB(FG, epi_param_opt, epi_param_fix, scanner_param);
       
             % -------------------------------------------------------------
             % Excluding out of range values
             % -------------------------------------------------------------
             BS_gain = (BS./(BS_baseline+eps)-1)*100;
             BSGainMask = (BS_gain > -100) & (BS_gain < 200);
-            BrainAndGainMask = (Brainmask > 0.99).*BSGainMask;
+            BrainAndGainMask = (Brainmask_tmpl > 0.99).*BSGainMask;
 
             % -------------------------------------------------------------
             % Evaluating ROIS
@@ -284,10 +285,11 @@ for n = 1:length(rois)
 end
 
 fprintf(' \n');
-fprintf('BS = BS in ROI compared to BS zero-gradients\n');
+fprintf('BS = Optimized relative BS in ROI \n');
+fprintf('BS-REF = Baseline relative BS in ROI \n');
 fprintf('BS-gain = BS in optimal protocol compared to default protocol\n');
-fprintf('PE = phase encoding direction (0 = standard, 1 = reversed, Siemens convention)\n');
-fprintf('PP = Shim gradient in z-direction\n');
+fprintf('PE = phase encoding direction (-1 = PA, +1 = AP)\n');
+fprintf('PP = Shim gradient moment in z-direction (mT/m*ms)\n');
 fprintf('tilt = tilt of slice\n');
 fprintf('------------------------------------------------------------------\n');
 
@@ -296,6 +298,11 @@ fprintf('------------------------------------------------------------------\n');
 % -------------------------------------------------------------------------
 matname = fullfile(out_dir, 'BSOpt.mat');
 save(matname, 'result', 'BS', 'BS_baseline');
+
+% -------------------------------------------------------------------------
+% Display the result
+% -------------------------------------------------------------------------
+DisplayBS_TB(result, tilt_range, PP_range, rois)
 
 result = 1;
 

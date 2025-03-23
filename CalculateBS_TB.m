@@ -55,11 +55,11 @@ if strcmp(epi_param_fix.main_orientation,'TRA') == 1
             0  cos(Angle) -sin(Angle);
             0  sin(Angle)  cos(Angle)];
 
-    if srcmp(direction, 'RAS+')
+    if strcmp(direction, 'RAS+')
         Rtrans = [-1 0 0; 0 1 0; 0 0 -1];
-    elseif srcmp(direction, 'LPS+')
+    elseif strcmp(direction, 'LPS+')
         Rtrans = [1 0 0; 0 -1 0; 0 0 -1];
-    elseif srcmp(direction, 'RPI+')
+    elseif strcmp(direction, 'RPI+')
         Rtrans = [-1 0 0; 0 -1 0; 0 0 1];
     end
 

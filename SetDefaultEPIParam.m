@@ -10,7 +10,7 @@ function epi_param = SetDefaultEPIParam
 %                                   'CRO' : coronal
 %                                   'SAG' : sagittal
 % fov                             : Field of view (in mm)
-% base_res                        : Basic resolution (Matrix size)
+% ph_res                          : Basic resolution in PE direction (Matrix size)
 % pe_ov                           : Oversampling Ratio in Phase Encoding 
 %                                   Direction in %
 % PF                              : Partial Fourier Coefficient
@@ -28,7 +28,7 @@ function epi_param = SetDefaultEPIParam
 
 epi_param.main_orientation = 'TRA';
 epi_param.fov              = 192;
-epi_param.base_res         = 64;
+epi_param.ph_res         = 64;
 epi_param.pe_ov            = 13;
 epi_param.PF               = 1;
 epi_param.AF               = 1;

@@ -226,16 +226,16 @@ Global_3T         = cfg_entry;
 Global_3T.tag     = 'Global_3T';
 Global_3T.name    = '3T Global R2*';
 Global_3T.val     = {1/45};                              
-Global_3T.help    = {'Global R2* Value in 3T in ms^-1'};
+Global_3T.help    = {'Global R2* Value in 3T in [ms]^-1'};
 Global_3T.num     = [1 1];
 % -------------------------------------------------------------------------
 % Additional Inputs for R2s Option
 % -------------------------------------------------------------------------
 Global_7T         = cfg_entry;
-Global_7T.tag     = 'global7T';
+Global_7T.tag     = 'Global_7T';
 Global_7T.name    = '7T Global R2*';
 Global_7T.val     = {1/30};                              
-Global_7T.help    = {'Global R2* Value in 7T in ms^-1'};
+Global_7T.help    = {'Global R2* Value in 7T in [ms]^-1'};
 Global_7T.num     = [1 1];
 % -------------------------------------------------------------------------
 % Additional Inputs for R2s Option
@@ -243,7 +243,7 @@ Global_7T.num     = [1 1];
 Voxel_wise         = cfg_files;
 Voxel_wise.tag     = 'Voxel_wise';
 Voxel_wise.name    = 'Voxel_wise R2* map';                             
-Voxel_wise.help    = {'Input an R2* map in ms^-1'};
+Voxel_wise.help    = {'Input an R2* map in [ms]^-1'};
 Voxel_wise.num     = [1 Inf];
 % -------------------------------------------------------------------------
 % Additional Inputs for R2s Option
@@ -251,7 +251,7 @@ Voxel_wise.num     = [1 Inf];
 ROI_Averaged         = cfg_files;
 ROI_Averaged.tag     = 'Voxel_wise';
 ROI_Averaged.name    = 'Voxel_wise R2* for ROI-specific value';                            
-ROI_Averaged.help    = {['Input an R2* map in ms^-1, an averaged value within' ...
+ROI_Averaged.help    = {['Input an R2* map in [ms]^-1, an averaged value within' ...
                          'each ROI will be used for optimization']};
 ROI_Averaged.num     = [1 1];
 % -------------------------------------------------------------------------
@@ -306,7 +306,7 @@ opt.results = epi_opt_param_TB(job.inputfiles.fieldmaps, job.inputfiles.rois, ..
                                job.inputfiles.template, ...
                                job.fixedparameters.main_orientation, ...
                                job.fixedparameters.fov, ...
-                               job.fixedparameters.base_res, ...
+                               job.fixedparameters.ph_res, ...
                                job.fixedparameters.pe_ov, ...
                                job.fixedparameters.slicethickness, ...
                                job.fixedparameters.echospacing, ...
@@ -315,7 +315,7 @@ opt.results = epi_opt_param_TB(job.inputfiles.fieldmaps, job.inputfiles.rois, ..
                                job.fixedparameters.AccF, job.fixedparameters.PF, ...
                                job.simu.tilt, job.simu.shimz, ...
                                job.other.rfs, job.other.R2sOpt, ...
-                               job.other.FG_direction, 'Opt_');
+                               job.other.FG_direction, '_Opt');
 
 % Not sure if this is necessary!
 % opt.fmfiles = job.inputfiles.fieldmaps;
