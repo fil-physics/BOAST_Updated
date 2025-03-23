@@ -1,4 +1,4 @@
-function result = epi_opt_param_TB(fieldmaps, rois, template, main_orientation, fov, ph_res, pe_ov, delta_z, echo_spacing, TC, vx_epi, AF, PF, tilt, shimz, rfs, R2sOpt, suffix)
+function result = epi_opt_param_TB(fieldmaps, rois, template, main_orientation, fov, ph_res, pe_ov, delta_z, echo_spacing, TC, vx_epi, AF, PF, tilt, shimz, rfs, R2sOpt, direction, suffix)
 
 % =========================================================================
 % Copyright (C) 2015-2018 Steffen Volz
@@ -185,13 +185,21 @@ tilt_ref = tilt(2);
 PE_range = [-1 1];
 
 % -------------------------------------------------------------------------
+% Setting Field derivatives
+% -------------------------------------------------------------------------
+FG.DX        = fm_dX;
+FG.DX        = fm_dX;
+FG.DX        = fm_dX;
+FG.direction = direction;
+
+% -------------------------------------------------------------------------
 % BS for Baseline Protocol (no tilt, no compensation, Positive blips up (PA))
 % -------------------------------------------------------------------------
 epi_param_opt.GP = [0 0 PP_ref]*10^-6;              % Compensation gradient moment (T/m*s)
 epi_param_opt.tilt = tilt_ref;                      % Tilt of slice (deg, T>C, Siemens convention)
 epi_param_opt.PE_dir = PE_range(1);                 % PE direction of EPI 
 
-BS_baseline = CalculateBS_TB(fm_dX, fm_dY, fm_dZ, epi_param_opt, epi_param_fix, scanner_param);
+BS_baseline = CalculateBS_TB(FG, epi_param_opt, epi_param_fix, scanner_param);
 
 
 % -------------------------------------------------------------------------
@@ -229,7 +237,7 @@ for PE_val = 1:length(PE_range)
             epi_param_opt.tilt = tilt_range(tilt_val);
             epi_param_opt.PE_dir = PE_range(PE_val);
       
-            BS = CalculateBS_ESMRMB(fm_dX, fm_dY, fm_dZ, epi_param_opt, epi_param_fix, scanner_param);
+            BS = CalculateBS_ESMRMB(FG, epi_param_opt, epi_param_fix, scanner_param);
       
             % -------------------------------------------------------------
             % Excluding out of range values

@@ -29,13 +29,9 @@ end
 fieldmaps         = cfg_files;
 fieldmaps.tag     = 'fieldmaps';
 fieldmaps.name    = 'Input fieldmaps';
-% fieldmaps.val{1}  = {'files/mean_wr_calcDX.nii' 'files/mean_wr_calcDY.nii' 'files/mean_wr_calcDZ.nii'};
-%fieldmaps.val{1}  = {'files/mean_wr_fmp.nii'};
 fieldmaps.help    = {['One fieldmap or 3 fieldmap gradient (dX dY dZ) files ' ...
                       'for optimizing BOLD sensitivity. Note that field ' ...
-                      'derivatives must have units in T/m and the orientations' ...
-                      'should be along (read, phase, slice) direction']};
-%fieldmaps.filter  = 'fmp';
+                      'derivatives must have units in T/m.']};
 fieldmaps.ufilter = '.*';
 fieldmaps.num     = [1 Inf];
 % -------------------------------------------------------------------------
@@ -44,7 +40,6 @@ fieldmaps.num     = [1 Inf];
 template         = cfg_files;
 template.tag     = 'template';
 template.name    = 'Input template';
-% template.val{1}  = {'/files/Brainmask.nii'};
 template.help    = {'template for illustration (only placeholder at the moment)'};
 template.ufilter = '.*';
 template.num     = [1 Inf];
@@ -54,7 +49,6 @@ template.num     = [1 Inf];
 rois         = cfg_files;
 rois.tag     = 'rois';
 rois.name    = 'ROI files';
-% rois.val{1}  = {'files/MyRoi_mOFC-and-rACC_mod.nii' 'files/MyRoi_InferiorTemporalGyri.nii' 'files/MyRoi_TemporalPoles.nii' 'files/MyRoi_Amygdala.nii' 'files/MyRoi_Hippo-andParahippocampalRegion.nii' 'files/MyRoi_WellShimmed.nii' 'files/Brainmask.nii'};
 rois.help    = {'ROIs for which BOLD is optimized.'};
 rois.ufilter = '.*';
 rois.num     = [1 Inf];
@@ -275,23 +269,24 @@ R2sOpt.help    = {'How to inoporate R2* in the optimization; The options are:' .
                   '4. ROI-specific Averaged Value'
                   };
 % -------------------------------------------------------------------------
-% Default Scanner Coordinate
+% Direction of Field Gradients
 % -------------------------------------------------------------------------
-Coord         = cfg_entry;
-Coord.tag     = 'Coord';
-Coord.name    = 'R2star Value/Map';
-Coord.val     = {1};
-Coord.help    = {['1 = Global Value in 3T (1/45 ms), 2 = Global value in 7T (1/30 ms),' ...
-                '3 = Voxel-wise Map, 4 = ROI-specific Aveaged Value']};
-Coord.strtype = 'r';
-Coord.num     = [1 1];
+FG_direction         = cfg_menu;
+FG_direction.tag     = 'FG_direction';
+FG_direction.name    = 'Direction of the field derivatives';
+FG_direction.help    = {['Option to choose the direction of the field derivatives.' ...
+                         'in terms of the subject; e.g., RAS+”, meaning that ' ...
+                         'Right, Anterior, Superior are all positive values on these axes.']};
+FG_direction.labels  = {'RAS+' 'LPS+' 'RPI+' 'LAI+'};
+FG_direction.values  = {'RAS+' 'LPS+' 'RPI+' 'LAI+'};
+FG_direction.val     = {'RAS+'};
 % -------------------------------------------------------------------------
 % Other Settings
 % -------------------------------------------------------------------------
 other         = cfg_branch;
 other.tag     = 'other';
 other.name    = 'Other Settings';
-other.val     = {rfs R2sOpt};
+other.val     = {rfs R2sOpt FG_direction};
 other.help    = {'Other Settings Used for Optimization'};
 
 % =========================================================================
@@ -319,7 +314,8 @@ opt.results = epi_opt_param_TB(job.inputfiles.fieldmaps, job.inputfiles.rois, ..
                                job.fixedparameters.vox, ...
                                job.fixedparameters.AccF, job.fixedparameters.PF, ...
                                job.simu.tilt, job.simu.shimz, ...
-                               job.other.rfs, job.other.R2sOpt, 'Opt_');
+                               job.other.rfs, job.other.R2sOpt, ...
+                               job.other.FG_direction, 'Opt_');
 
 % Not sure if this is necessary!
 % opt.fmfiles = job.inputfiles.fieldmaps;
