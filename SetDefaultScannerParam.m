@@ -1,5 +1,5 @@
 function scanner_param = SetDefaultScannerParam
-
+% This is no longer needed!
 % =========================================================================
 % This function sets the scanner parameters. 
 % These values can be modified as needed to suit specific requirements.
