@@ -293,7 +293,7 @@ fprintf('BS-REF = Baseline relative BS in ROI \n');
 fprintf('BS-gain = BS in optimal protocol compared to default protocol\n');
 fprintf('PE = phase encoding direction (-1 = PA, +1 = AP)\n');
 fprintf('PP = Shim gradient moment in z-direction (mT/m*ms)\n');
-fprintf('tilt = tilt of slice\n');
+fprintf('tilt = tilt of slice (Positive = towards foot, Negative = towards head)\n');
 fprintf('------------------------------------------------------------------\n');
 
 % -------------------------------------------------------------------------
