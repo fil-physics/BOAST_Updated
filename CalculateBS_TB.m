@@ -21,6 +21,7 @@ gam = 42.58e6;                     % gyromagnetic ratio for protons in Hz/T
 default_epi_params = SetDefaultEPIParam;
 try fov = epi_param_fix.fov;     catch,   fov = default_epi_params.fov;         end
 try AcF = epi_param_fix.AccF;    catch,   AcF = default_epi_params.AccF;        end
+try PF = epi_param_fix.PF;       catch,   PF = default_epi_params.PF;           end
 try TC = epi_param_fix.TC;       catch,   TC = default_epi_params.echotime;     end
 try TA = epi_param_fix.TA;       catch,   TA = default_epi_params.TA;           end
 try TA_FS = epi_param_fix.TA_FS; catch,   TA_FS = default_epi_params.TA_FS;     end

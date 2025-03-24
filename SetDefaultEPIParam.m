@@ -49,9 +49,7 @@ epi_param.vox              = epi_param.vox * 10^(-3);
 epi_param.pe_eff = ceil(epi_param.ph_res * (1 + epi_param.pe_ov/100));
 
 % Fully-sampled case
-if PF ~= 1
-    epi_param.TA_FS  = epi_param.echo_spacing * epi_param.pe_eff;
-end
+epi_param.TA_FS  = epi_param.echo_spacing * epi_param.pe_eff;
 
 % PF-Acc case
 epi_param.pe_eff   = epi_param.pe_eff * epi_param.PF/epi_param.AccF;
