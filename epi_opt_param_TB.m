@@ -1,6 +1,6 @@
 function result = epi_opt_param_TB(fieldmaps, rois, template, main_orientation, ...
                      fov, ph_res, pe_ov, delta_z, echo_spacing, TC, vx_epi, AF, ...
-                     PF, tilt, shimz, rfs, R2sOpt, direction, suffix)
+                     PF, tilt, shimz, rfs, R2sOpt, suffix)
 
 % =========================================================================
 % Copyright (C) 2015-2018 Steffen Volz
@@ -74,9 +74,11 @@ elseif (length(fieldmaps) == 1)
    fprintf('loading fieldmaps and calculating gradientmaps ...\n');
 
    spm_progress_bar('Set', 1);
-   [fm_dX,fm_dY,fm_dZ] = CalculateGradientmaps_TB(fieldmaps{1});
-   fprintf('resizing gradientmaps ...\n');
+   vol_fm_dX = spm_vol(fieldmaps{1});
 
+   [fm_dX, fm_dY, fm_dZ] = CalculateGradientmaps_TB(fieldmaps{1});
+   fprintf('resizing gradientmaps ...\n');
+   
    fm_dX = resize(fm_dX, rfs);
    fm_dY = resize(fm_dY, rfs);
    fm_dZ = resize(fm_dZ, rfs);
@@ -95,22 +97,23 @@ epi_param_fix.main_orientation = main_orientation;
 epi_param_fix.echo_spacing = echo_spacing * 10^(-3);
 
 epi_param_fix.fov      = fov * 10^(-3);
+epi_param_fix.AccF     = AF;
 epi_param_fix.ph_res   = ph_res;
 epi_param_fix.delta_z  = delta_z * 10^(-3);
 epi_param_fix.TC       = TC * 10^(-3);
 epi_param_fix.vx_epi   = vx_epi * 10^(-3);
 
+% Effective phase-encoding steps
+epi_param_fix.pe_eff = ceil(epi_param_fix.ph_res * (1 + pe_ov/100));
 
-if pe_ov
-    epi_param_fix.pe_eff = ceil(epi_param_fix.ph_res * (1 + pe_ov/100));    
-end
-% fully-sampled case
-if PF ~= 1
-    epi_param_fix.TA_FS  = epi_param_fix.echo_spacing * epi_param_fix.pe_eff;
-end
+% Fully-sampled case
+epi_param_fix.TA_FS  = epi_param_fix.echo_spacing * epi_param_fix.pe_eff;
 
-epi_param_fix.pe_eff = epi_param_fix.pe_eff * PF/AF;
-epi_param_fix.TA     = epi_param_fix.echo_spacing * epi_param_fix.pe_eff;    % Total acquisition time
+% PF-Acc case
+epi_param_fix.pe_eff   = epi_param_fix.pe_eff * PF/epi_param_fix.AccF;
+
+% Total acquisition time
+epi_param_fix.TA       = epi_param_fix.echo_spacing * epi_param_fix.pe_eff; 
 
 % -------------------------------------------------------------------------
 % Setting Scanner-dependant Parameter
@@ -122,7 +125,7 @@ R2s = R2sOpt.(R2sfield);
 
 if isnumeric(R2s)
     scanner_param.R2s = R2s;
-    fprintf('loading R2s value: %0.2f\n', R2s);
+    fprintf('loading R2s value: %0.2f (ms^-1) \n', R2s);
 else
     vol_R2s = spm_vol(char(R2s));
     scanner_param.R2s = spm_read_vols(vol_R2s);
@@ -155,7 +158,7 @@ for n = 1:length(rois)
         R2sroi = scanner_param.R2s.*squeeze(ROI_slct(:,:,:,n));
         R2sroi = mean(nonzeros(R2sroi));
         scanner_param.R2s = R2sroi;
-        fprintf('ROI averaged R2s value: %0.2f\n', R2sroi);
+        fprintf('ROI averaged R2s value: %0.2f (s^-1) \n', R2sroi);
     end
 end
 
@@ -192,10 +195,10 @@ PE_range = [-1 1];
 FG.DX        = fm_dX;
 FG.DY        = fm_dY;
 FG.DZ        = fm_dZ;
-FG.direction = direction;
+FG.direction = vol_fm_dX.mat(1:3,1:3);
 
 % -------------------------------------------------------------------------
-% BS for Baseline Protocol (no tilt, no compensation, Positive blips up (PA))
+% BS for Baseline Protocol (no tilt, no compensation, Positive Prewinder (AP))
 % -------------------------------------------------------------------------
 epi_param_opt.GP = [0 0 PP_ref]*10^-6;              % Compensation gradient moment (T/m*s)
 epi_param_opt.tilt = tilt_ref;                      % Tilt of slice (deg, T>C, Siemens convention)

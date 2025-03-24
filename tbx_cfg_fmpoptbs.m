@@ -201,7 +201,6 @@ simu         = cfg_branch;
 simu.tag     = 'simu';
 simu.name    = 'Simulation Parameters';
 simu.val     = {shimz tilt};
-%simu.val     = {TE,PEdir,tilt,shimx,shimy,shimz};
 simu.help    = {['Parameters to be simulated: all these parameters have a minimum, ' ...
                  'maximum and default value and a step size for the optimization procedure']};
 
@@ -263,30 +262,18 @@ R2sOpt.name    = 'R2star Option';
 R2sOpt.values  = {Global_3T Global_7T Voxel_wise ROI_Averaged};
 R2sOpt.val     = {Global_3T};
 R2sOpt.help    = {'How to inoporate R2* in the optimization; The options are:' ...
-                  '1. Global Value in 3T (1/45e-3 s^-1)' ...
-                  '2. Global value in 7T (1/30e-3 s^-1)' ...
-                  '3. Voxel-wise Map (s^-1)' ...
+                  '1. Global Value in 3T (1/45 ms^-1)' ...
+                  '2. Global value in 7T (1/30 ms^-1)' ...
+                  '3. Voxel-wise Map (ms^-1)' ...
                   '4. ROI-specific Averaged Value'
                   };
-% -------------------------------------------------------------------------
-% Direction of Field Gradients
-% -------------------------------------------------------------------------
-FG_direction         = cfg_menu;
-FG_direction.tag     = 'FG_direction';
-FG_direction.name    = 'Direction of the field derivatives';
-FG_direction.help    = {['Option to choose the direction of the field derivatives.' ...
-                         'in terms of the subject; e.g., RAS+”, meaning that ' ...
-                         'Right, Anterior, Superior are all positive values on these axes.']};
-FG_direction.labels  = {'RAS+' 'LPS+' 'RPI+' 'LAI+'};
-FG_direction.values  = {'RAS+' 'LPS+' 'RPI+' 'LAI+'};
-FG_direction.val     = {'RAS+'};
 % -------------------------------------------------------------------------
 % Other Settings
 % -------------------------------------------------------------------------
 other         = cfg_branch;
 other.tag     = 'other';
 other.name    = 'Other Settings';
-other.val     = {rfs R2sOpt FG_direction};
+other.val     = {rfs R2sOpt};
 other.help    = {'Other Settings Used for Optimization'};
 
 % =========================================================================
@@ -314,8 +301,7 @@ opt.results = epi_opt_param_TB(job.inputfiles.fieldmaps, job.inputfiles.rois, ..
                                job.fixedparameters.vox, ...
                                job.fixedparameters.AccF, job.fixedparameters.PF, ...
                                job.simu.tilt, job.simu.shimz, ...
-                               job.other.rfs, job.other.R2sOpt, ...
-                               job.other.FG_direction, '_Opt');
+                               job.other.rfs, job.other.R2sOpt, '_Opt');
 
 % Not sure if this is necessary!
 % opt.fmfiles = job.inputfiles.fieldmaps;

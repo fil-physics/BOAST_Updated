@@ -16,20 +16,21 @@ function BS = CalculateBS_TB(FG, epi_param_opt, epi_param_fix, scanner_param)
 % =========================================================================
 % Unpack Input Variables
 % =========================================================================
-gam = 2*pi*42.58e6;   % gyromagnetic ratio for protons in Hz/T
+gam = 42.58e6;                     % gyromagnetic ratio for protons in Hz/T
 
 default_epi_params = SetDefaultEPIParam;
-try fov = epi_param_fix.fov;     catch,   fov = default_epi_params.fov;   end
-try AcF = epi_param_fix.AF;      catch,   AcF = default_epi_params.AF;    end
-try TC = epi_param_fix.TC;       catch,   TC = default_epi_params.TC;     end
-try PF = epi_param_fix.PF;       catch,   PF = default_epi_params.PF;     end
-try TA = epi_param_fix.TA;       catch,   TA = default_epi_params.TA;     end
+try fov = epi_param_fix.fov;     catch,   fov = default_epi_params.fov;         end
+try AcF = epi_param_fix.AccF;    catch,   AcF = default_epi_params.AccF;        end
+try TC = epi_param_fix.TC;       catch,   TC = default_epi_params.echotime;     end
+try TA = epi_param_fix.TA;       catch,   TA = default_epi_params.TA;           end
 try TA_FS = epi_param_fix.TA_FS; catch,   TA_FS = default_epi_params.TA_FS;     end
-try vx_epi = epi_param_fix.vx_epi; catch, vx_epi = default_epi_params.vx_epi;   end
+try vx_epi = epi_param_fix.vx_epi; catch, vx_epi = default_epi_params.vox;      end
 try delta_z = epi_param_fix.delta_z; ...
 catch, delta_z = default_epi_params.delta_z;   end
 try echo_spacing = epi_param_fix.echo_spacing; ...      
 catch, echo_spacing = default_epi_params.echo_spacing;     end
+try main_orientation = epi_param_fix.main_orientation;     
+catch,   main_orientation = default_epi_params.main_orientation;      end
 
 % Field gradients
 fm_dX = FG.DX;
@@ -42,41 +43,39 @@ direction   = FG.direction;
 % =========================================================================
 GPrep_RO = epi_param_opt.GP(1);
 GPrep_PE = epi_param_opt.GP(2);
-GPrep_SS  = epi_param_opt.GP(3);
+GPrep_SS = epi_param_opt.GP(3);
 
 % =========================================================================
 % Rotation matrix for converting filed map gradients from XYZ to RPS
 % =========================================================================
-Angle = -epi_param_opt.tilt/180*pi;
+Angle = epi_param_opt.tilt/180*pi;
 
-% RO: RL, PE: PA, SL: HF;  Rotation about the RO axis
-if strcmp(epi_param_fix.main_orientation,'TRA') == 1
+% RO: RL, PE: PA, SL: SI;  Rotation about the RO axis (Positive towards foot)
+if strcmp(main_orientation,'TRA') == 1
     Rrot = [1     0           0;
             0  cos(Angle) -sin(Angle);
             0  sin(Angle)  cos(Angle)];
 
-    if strcmp(direction, 'RAS+')
-        Rtrans = [-1 0 0; 0 1 0; 0 0 -1];
-    elseif strcmp(direction, 'LPS+')
-        Rtrans = [1 0 0; 0 -1 0; 0 0 -1];
-    elseif strcmp(direction, 'RPI+')
-        Rtrans = [-1 0 0; 0 -1 0; 0 0 1];
-    end
+% Transformation from RAS+ (Nifti format) to LAI+ (Scanner Coordinte)
+% this can be translated as a 180-degree rotation around the second axis
+Rtrans = [-1  0  0;
+           0  1  0;
+           0  0 -1]*direction;
 
-% RO: PA, PE: FH, SL: LR;  Rotation about the RO axis    
-elseif strcmp(epi_param_fix.main_orientation,'SAG') == 1
+% RO: PA, PE: IS, SL: LR;  Rotation about the RO axis    
+elseif strcmp(main_orientation,'SAG') == 1
     Rrot = [0  -sin(Angle)  cos(Angle);
             0   cos(Angle)  sin(Angle);
             -1     0           0];
 
-% RO: LR, PE: HF, SL: PA;  Rotation about the RO axis   
-elseif strcmp(epi_param_fix.main_orientation,'COR') == 1
+% RO: LR, PE: SI, SL: PA;  Rotation about the RO axis   
+elseif strcmp(main_orientation,'COR') == 1
     Rrot = [-1     0           0;
             0  -sin(Angle)  cos(Angle);
             0   cos(Angle)  sin(Angle)];
 end
 
-Rtotal = Rrot.*Rtrans;
+Rtotal = Rrot*Rtrans;
 
 fGR = fm_dX*Rtotal(1,1) + fm_dY*Rtotal(1,2) + fm_dZ*Rtotal(1,3);
 fGP = fm_dX*Rtotal(2,1) + fm_dY*Rtotal(2,2) + fm_dZ*Rtotal(2,3);
